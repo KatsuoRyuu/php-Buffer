@@ -39,6 +39,14 @@ class Buffer {
         return new Buffer($from, $type);
     }
     
+    public static function isBuffer($data) {
+        if ($var instanceof Buffer) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     public function from($from, $type = null) {
         switch($type) {
             case 'base64':
