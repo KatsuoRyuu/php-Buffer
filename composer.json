@@ -2,7 +2,7 @@
     "name": "kryuu-common/buffer",
     "description": "Buffer controller for multiple types of conversions like Base64 and Base58",
     "repositories": [ 
-        { "type": "composer", "url": "https://composer.git.ryuu.technology/packages/php/" }
+        { "type": "composer", "url": "https://composer.ryuu.technology/packages/php/" }
     ],
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -16,6 +16,11 @@
     "autoload": {
         "psr-4": {
             "KryuuCommon\\Buffer\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "KryuuCommon\\BufferTest\\":   "test/"
         }
     }
 }

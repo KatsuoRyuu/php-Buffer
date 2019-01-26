@@ -28,11 +28,15 @@ class Buffer {
     private $from = null;
     
     
-    public function __construct($from = null) {
+    public function __construct($from = null, $type = null) {
         if ($from) {
-            $this->from($from);
+            $this->from($from, $type);
         }   
         
+    }
+    
+    public static function isfrom($from, $type = null) {
+        return new Buffer($from, $type);
     }
     
     public function from($from, $type = null) {
@@ -44,9 +48,24 @@ class Buffer {
                 $this->from = base64_decode($from, true);
                 break;
             case 'base58':
-                $base58 = new Base58();
-                $this->from = $base58->decode($from);
+                $this->from = (new Base58())->decode($from);
                 break;
+            case 'nulpad':
+                $this->from = unpack('a*', $from);
+                break;
+            case 'spacepad':
+                $this->from = unpack('A*', $from);
+                break;
+            case 'hexlow':
+                $this->from = unpack('h*', $from);
+                break;
+            case 'hex':
+                $this->from = unpack('H*', $from);
+                break;
+            case 'singned-char':
+                $this->from = unpack('c*', $from);
+                break;
+            case 'raw':
             default:
                 $this->from = $from;
         }
@@ -55,24 +74,22 @@ class Buffer {
     
     public function toString($type = null) {
         switch($type):
-            case 'base64':
-                return base64_encode($this->from);
-            case 'base58':
-                return $this->base58($this->from);
             default:
-                return $this->from;
+                return mb_convert_encoding($this->from, 'UTF-8');
         endswitch;
     }
     
     public function toKeypair($type = null) {
         switch($type) {
             case 'base58_ed25519':
-            default:
                 $keys = $this->toEd25519();
-                
                 return (new KeyPair)
                     ->setPublic($this->base58($keys['publicKey']))
                     ->setPrivate($this->base58($keys['secretKey']));
+            default:
+                return (new KeyPair)
+                    ->setPublic($keys['publicKey'])
+                    ->setPrivate($keys['secretKey']);
         }
     }
     
@@ -90,9 +107,11 @@ class Buffer {
      * @property {string} privateKey
      */
     private function toEd25519() {
-        $keyPair = $this->from ? sodium_crypto_sign_seed_keypair($this->from)
-                :sodium_crypto_sign_seed_keypair(sodium_crypto_secretbox_keygen());
-        $keyPairHex = unpack('H*', $keyPair);
+        if (!$this->from ) {
+            throw new \Exception("To value to translate from");
+        }
+        
+        $keyPair = sodium_crypto_sign_seed_keypair($this->from);
 
         if (count($keyPairHex) > 1) {
             throw new WrongResultValueException(
@@ -104,8 +123,8 @@ class Buffer {
         }
         
         return [
-            'publicKey' => pack('H*', substr($keyPairHex[1], 0, 128)),
-            'secretKey' => pack('H*', substr($keyPairHex[1], 128, 160)),
+            'publicKey' => substr($keyPair, 0, ((count($keyPair)/3)*2)),
+            'secretKey' => substr($keyPair, ((count($keyPair)/3)*2)),
         ];
 
     }
