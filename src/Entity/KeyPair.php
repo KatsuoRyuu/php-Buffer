@@ -13,28 +13,32 @@ namespace KryuuCommon\Buffer\Entity;
  *
  * @author spawn
  */
-class KeyPair {
-    
+class KeyPair
+{
+
     private $private = null;
-    
+
     private $public = null;
-    
-    function getPrivate() {
+
+    public function getPrivate()
+    {
         return $this->private;
     }
 
-    function getPublic() {
+    public function getPublic()
+    {
         return $this->public;
     }
 
-    function setPrivate($private) {
+    public function setPrivate($private)
+    {
         $this->private = $private;
         return $this;
     }
 
-    function setPublic($public) {
+    public function setPublic($public)
+    {
         $this->public = $public;
         return $this;
     }
-    
 }

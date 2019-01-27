@@ -5,7 +5,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
- 
+
 namespace KryuuCommon\Buffer;
 
 use Zend\Crypt\PublicKey\RsaOptions;
@@ -13,42 +13,44 @@ use KryuuCommon\Base58\Base58;
 use KryuuCommon\Buffer\Exception\WrongResultValueException;
 use KryuuCommon\Buffer\Entity\KeyPair;
 
-
-
 /**
  * Description of Buffer
  *
  * @author spawn
  */
-class Buffer {
-    
+class Buffer
+{
+
     /**
      * @var String
      */
     private $from = null;
-    
-    
-    public function __construct($from = null, $type = null) {
+
+
+    public function __construct($from = null, $type = null)
+    {
         if ($from) {
             $this->from($from, $type);
-        }   
-        
+        }
     }
-    
-    public static function isfrom($from, $type = null) {
+
+    public static function isfrom($from, $type = null)
+    {
         return new Buffer($from, $type);
     }
-    
-    public static function isBuffer($data) {
+
+    public static function isBuffer($data)
+    {
         if ($var instanceof Buffer) {
             return true;
         } else {
             return false;
         }
     }
-    
-    public function from($from, $type = null) {
-        switch($type) {
+
+    public function from($from, $type = null)
+    {
+        switch ($type) {
             case 'base64':
                 $this->from = base64_decode($from);
                 break;
@@ -79,16 +81,18 @@ class Buffer {
         }
         return $this;
     }
-    
-    public function toString($type = null) {
-        switch($type):
+
+    public function toString($type = null)
+    {
+        switch ($type) :
             default:
                 return mb_convert_encoding($this->from, 'UTF-8');
         endswitch;
     }
-    
-    public function toKeypair($type = null) {
-        switch($type) {
+
+    public function toKeypair($type = null)
+    {
+        switch ($type) {
             case 'base58_ed25519':
                 $keys = $this->toEd25519();
                 return (new KeyPair)
@@ -100,12 +104,13 @@ class Buffer {
                     ->setPrivate($keys['secretKey']);
         }
     }
-    
-    private function base58($data) {
+
+    private function base58($data)
+    {
         $base58 = new Base58();
         return $base58->encode($data);
     }
-    
+
     /**
      * @private
      * Ed25519 keypair in base58 (as BigchainDB expects base58 keys)
@@ -114,26 +119,27 @@ class Buffer {
      * @property {string} publicKey
      * @property {string} privateKey
      */
-    private function toEd25519() {
-        if (!$this->from ) {
+    private function toEd25519()
+    {
+        if (! $this->from) {
             throw new \Exception("To value to translate from");
         }
-        
+
         $keyPair = sodium_crypto_sign_seed_keypair($this->from);
 
         if (count($keyPairHex) > 1) {
             throw new WrongResultValueException(
-                sprintf('Return value from Unpack returned wrong value; expected'
-                    . ' array of size 1 but got array of size %s', 
+                sprintf(
+                    'Return value from Unpack returned wrong value; expected'
+                    . ' array of size 1 but got array of size %s',
                     count($keyPairHex)
                 )
             );
         }
-        
-        return [
-            'publicKey' => substr($keyPair, 0, ((count($keyPair)/3)*2)),
-            'secretKey' => substr($keyPair, ((count($keyPair)/3)*2)),
-        ];
 
+        return [
+            'publicKey' => substr($keyPair, 0, ((count($keyPair) / 3) * 2)),
+            'secretKey' => substr($keyPair, ((count($keyPair) / 3) * 2)),
+        ];
     }
 }

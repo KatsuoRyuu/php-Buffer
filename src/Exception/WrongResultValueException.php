@@ -13,6 +13,7 @@ namespace KryuuCommon\Buffer\Exception;
  *
  * @author spawn
  */
-class WrongResultValueException extends \Exception {
+class WrongResultValueException extends \Exception
+{
     //put your code here
 }
